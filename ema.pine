@@ -1,0 +1,139 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © DalmarSantos
+//@version=4
+// Crossing Exponential Moving Avarage - EMA 08,17,72 and Pivot High and Low
+// Pivot Points Moving Averages Exponential Moving Average (EMA) corssover crossunder cross crossmedia tradeentry tradeexit
+// This script uses the functions plot(), cross(), plotcandle(), pivothigh() and pivotllow(). You can see the candles in the color green, above EMA 
+// 72 (Exponetional Move Average), and the color red, below EMA72. You can identify the position of the crossing UP and DOWN of the EMA 08 x EMA 17,
+// EMA 17 x EMA72. You can identify the TRADE ENTRY points with the pivot high and TRADE EXIT with the pivot Low.
+// https://www.tradingview.com/script/UoBxxLE7/
+//==> Cruzamento de Médias Móveis Exponenciais - EMA 08, 17, 72 e Pivot de Alta e Baixa
+//
+study("@Cross_Media&Pivot", overlay=true)
+//
+//strategy("@Cross_Media&Pivo", overlay=true)
+
+//
+//****************************
+//Function==> Função | plot()
+//****************************
+return = 250 //quantity of candles to analise ==> quantidade de candles para analise ==> 
+//Apresenta as médias ==> Show the avareges
+ema08 = ema(close,8)
+ema17 = ema(close,17)
+ema72 = ema(close,72)
+plot(series=ema08, title="EMA 08", color=color.red, linewidth=1, style=plot.style_line, transp=0, show_last=return) // Exponential Moving Avarage 08
+plot(series=ema17, title="EMA 17", color=color.purple, linewidth=1, style=plot.style_line, transp=0, show_last=return) // Exponential Moving Avarage 17
+plot(series=ema72, title="EMA 72", color=color.orange, linewidth=3, style=plot.style_line, transp=50, show_last=return) // Exponential Moving Avarage 08
+//
+//*****************************
+//Function==> Função  cross()
+//*****************************
+//Apresenta no gráfico o local dos cruzamentos das médias ==> Show the intersections crossing average on the graph
+//para CIMA ==> UP
+cross08x17 = cross(ema08,ema17)
+cross17x72 = cross(ema17,ema72)
+plot(crossover(ema08,ema17)==true ? ema17 : na, title="Cross UP 08x17", color=color.purple, transp=0, style=plot.style_circles, linewidth=5, show_last=return)
+plot(crossover(ema17,ema72)==true ? ema72 : na, title="Cross UP 17x72", color=color.orange, transp=0, style=plot.style_circles, linewidth=6, show_last=return)
+plotshape(crossover(ema08,ema17)==true ? ema17 : na, text="Cross UP\n08x17", title="Cross UP 08x17", location=location.belowbar, color=color.purple, transp=0, style=shape.triangleup, size=size.small, show_last=return)
+plotshape(crossover(ema17,ema72)==true ? ema17 : na, text="Cross UP\n17x72", title="Cross UP 17x72", location=location.belowbar, color=color.orange, transp=0, style=shape.triangleup, offset=-1, size=size.small, show_last=return)
+
+//ArrowUP72 = crossover(ema17,ema72)==true ? 1 : 0
+//plotarrow(ArrowUP72, title="ArrowUP", colorup=color.lime, minheight=10, maxheight=50, show_last=return)
+
+//para BAIXO ==> DOWN
+plot(crossunder(ema08,ema17)==true ? ema17 : na, title="Cross DN 08x17", color=color.purple, transp=50, style=plot.style_circles, linewidth=5, show_last=return)
+plot(crossunder(ema17,ema72)==true ? ema72 : na, title="Cross DN 17x72", color=color.orange, transp=50, style=plot.style_circles, linewidth=6, show_last=return)
+plotshape(crossunder(ema08,ema17) ? ema17 : na, text="Cross DN\n08x17", title="Cross DN 08x17", location=location.abovebar, color=color.purple, transp=50, style=shape.triangledown, size=size.small, show_last=return)
+plotshape(crossunder(ema17,ema72) ? ema17 : na, text="Cross DN\n17x72", title="Cross DN 17x72", location=location.abovebar, color=color.orange, transp=50, style=shape.triangledown, offset=-1, size=size.small, show_last=return)
+
+//ArrowDN72 = crossunder(ema17,ema72)==true ? -1 : 0
+//plotarrow(ArrowDN72, title="ArrowDN", colordown=color.red, minheight=-30, maxheight=-50, show_last=return)
+
+//**********************************
+//Function==> Função | plotcandle()
+//**********************************
+//Candles UP EMA72 color green and Candels Down x EMA72 color red
+//==> Velas acima da EMA72 cor verde e Velas abaixo da EMA72 cor vermelha
+//corCandle =  open>ema72 and high>ema72 and low>ema72 and close>ema72 ? color.new(color.green,10) :  open<ema72 and high<ema72 and low<ema72 and close<ema72 ? color.new(color.red,10) : color.new(color.white,90)
+//plotcandle(open, high, low, close, title="Candles x EMA72", color=corCandle, wickcolor=color.new(color.gray,70), bordercolor=color.new(color.gray,70), show_last=return)
+
+//
+//************************************************
+//Function==> Função | pivothigh() and pivotlow()
+//Reference: Pine Script Manual
+//************************************************
+leftBars = input(15)
+rightBars=input(15)
+pivotHigh = pivothigh(leftBars, rightBars) //pivot de alta
+plot(pivotHigh>ema72[rightBars] ? pivotHigh : na, title="Pivot High", style=plot.style_cross, linewidth=3, color= color.red, offset=-rightBars, show_last=return)
+
+//pivotLow = pivotlow(close, leftBars, rightBars) //pivot de baixa
+pivotLow = pivotlow(leftBars, rightBars) //pivot de baixa
+plot(pivotLow<ema72[rightBars] ? pivotLow : na, title="Pivot Low", style=plot.style_cross, linewidth=3, color= color.yellow, offset=-rightBars, show_last=return)
+
+
+//////////////////////////  $ T R A T E G Y  \\\\\\\\\\\\\\\\\\\\\\\\\\
+
+// P o s i t i o n
+// var position = "none"
+
+
+// S t o p :
+stop = input(defval=0.1, title="Stop %", type=input.float, minval=0.01, maxval=100, step=0.01)
+
+// L o n g : 
+longStop = (100 - stop) / 100
+longStop := round(close * longStop)
+plotchar(longStop, "longStop", "", location.top)
+
+// S h o r t :
+shortStop = (100 + stop) / 100 
+shortStop := round(close * shortStop)
+plotchar(shortStop, "shortStop", "", location.top)
+
+
+// E n t r y
+
+// L o n g    
+if crossover(ema08,ema17)
+    alert(message="Cross Up 8x17 " + tostring(close), freq=alert.freq_once_per_bar_close)
+if crossover(ema17,ema72)
+    alert(message='{"long":"' + tostring(close) + '", "stopPrice":"' +tostring(longStop) + '", "symbol":"BTCUSDT"}', freq=alert.freq_once_per_bar)
+    //position := "long"
+
+// S h o r t 
+if crossunder(ema08,ema17)
+    alert(message="Cross Down 8x17 " + tostring(close),freq=alert.freq_once_per_bar_close)
+if crossunder(ema17,ema72)
+    alert(message='{"short":"' + tostring(close) + '", "stopPrice":"' +tostring(shortStop) + '", "symbol":"BTCUSDT"}', freq=alert.freq_once_per_bar)
+    //position := "short"
+
+
+// E x i t :
+
+// When close hits a donChan it ratchets up the stoploss (stop_loss : close-all)
+// It also takes a bit of profit
+lowerDonChan = lowest(15)
+upperDonChan = highest(15)
+
+// L o n g :
+if close >= upperDonChan // and close >= upperBB?
+    alert(message='{"exitShort":"' + tostring(close) + '", "stopPrice":"' +tostring(round(ema17[1])) + '", "symbol":"BTCUSDT"}', freq=alert.freq_once_per_bar)
+    //alert(message='{"ratchetStopLong":"' + tostring(close) + '", "stopPrice":"' +tostring(round(ema17[1])) + '", "symbol":"BTCUSDT"}', freq=alert.freq_once_per_bar_close)
+plot(upperDonChan, title='Ratchet Stop Long', color=color.green, linewidth=2, transp=80)
+
+// S h o r t :
+if close <= lowerDonChan
+    alert(message='{"exitLong":"' + tostring(close) + '", "stopPrice":"' +tostring(round(ema17[1])) + '", "symbol":"BTCUSDT"}', freq=alert.freq_once_per_bar)
+    // alert(message='{"ratchetStopShort":"' + tostring(close) + '", "stopPrice":"' +tostring(round(ema17[1])) + '", "symbol":"BTCUSDT"}', freq=alert.freq_once_per_bar_close)
+plot(lowerDonChan, title='Ratchet Stop Short', color=color.red, linewidth=2, transp=80)
+
+// A l e r t s
+
+if(pivotHigh) // and position==long
+    alert(message="Pivot High: " + tostring(close))
+
+// Short
+if(pivotLow) // and position==short
+    alert(message="Pivot Low: " + tostring(close))
